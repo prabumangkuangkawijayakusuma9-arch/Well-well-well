@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>well well well mvelz nieh boess</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{max-width:960px;margin:24px auto;padding:20px;background:#f7f8fb}
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{font-size:20px;margin:0}
+    .card{background:#fff;border-radius:10px;padding:18px;margin-top:16px;box-shadow:0 6px 18px rgba(20,20,40,.06)}
+    .question{margin-bottom:14px;padding:12px;border-radius:8px}
+    .qtext{font-weight:600}
+    label{display:block;padding:6px 8px;border-radius:6px;cursor:pointer}
+    input[type=radio]{margin-right:10px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+    button{background:#2563eb;color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#6b7280}
+    .result{margin-top:12px;padding:10px;border-radius:8px}
+    .correct{background:#ecfdf5;border:1px solid #10b981}
+    .wrong{background:#fff1f2;border:1px solid #ef4444}
+    .summary{font-size:16px;font-weight:700}
+    .meta{color:#6b7280;font-size:13px}
+    .badge{background:#eef2ff;color:#3730a3;padding:6px 8px;border-radius:999px;font-size:12px}
+    .qmeta{font-size:13px;color:#374151}
+    .small{font-size:13px;color:#374151}
+    .review{margin-top:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>well well well</h1>
+    <div class="badge">MANGATZZ YA BELAJARNYA</div>
+  </header>
+
+  <div class="card">
+    <p class="meta">Petunjuk: Pilih satu jawaban per soal. Setelah selesai tekan tombol <strong>Selesai</strong> untuk melihat nilai dan pembahasan singkat.</p>
+
+    <form id="quiz">
+      <!-- Questions will be injected here -->
+    </form>
+
+    <div class="controls">
+      <button id="finish">Selesai</button>
+      <button type="button" id="reset" class="secondary">Reset Jawaban</button>
+      <div style="margin-left:auto" class="small">Jumlah soal: <strong>50</strong></div>
+    </div>
+
+    <div id="output" class="result" style="display:none"></div>
+    <div id="review" class="review"></div>
+  </div>
+
+  <script>
+    // Soal 50 item; setiap object: teks, pilihan [a,b,c,d], jawaban (a/b/c/d), pembahasan singkat
+    const questions = [
+      {q: '1. Apa yang dimaksud dengan teks deskripsi?',
+       choices: ['A. Teks yang menceritakan kejadian berurutan','B. Teks yang menjelaskan ciri-ciri atau keadaan sesuatu','C. Teks yang berisi instruksi langkah demi langkah','D. Teks yang berisi dialog antara tokoh'],
+       ans: 'b', explain: 'Teks deskripsi bertujuan menggambarkan sesuatu agar pembaca dapat membayangkan.'},
+
+      {q: '2. Ide pokok dalam teks deskripsi biasanya berisi...',
+       choices: ['A. Alur cerita','B. Gambaran umum tentang objek','C. Langkah-langkah kegiatan','D. Dialog antar tokoh'],
+       ans: 'b', explain: 'Ide pokok teks deskripsi berisi gambaran umum objek yang dideskripsikan.'},
+
+      {q: '3. Paragraf deduktif memiliki ciri...',
+       choices: ['A. Kalimat utama di akhir paragraf','B. Tidak memiliki kalimat utama','C. Kalimat utama di awal paragraf','D. Semua kalimat hanya rincian tanpa kesimpulan'],
+       ans: 'c', explain: 'Paragraf deduktif: kalimat utama (tema) ada di awal.'},
+
+      {q: '4. Paragraf induktif memiliki ciri...',
+       choices: ['A. Kalimat utama di awal','B. Kalimat utama di tengah','C. Kalimat utama di akhir','D. Tidak ada kalimat utama'],
+       ans: 'c', explain: 'Induktif: rincian terlebih dahulu lalu diakhiri kalimat utama.'},
+
+      {q: '5. Paragraf interaktif (ineratif) biasanya ditandai oleh...',
+       choices: ['A. Kalimat tanya di awal','B. Kalimat utama di tengah','C. Kalimat yang mengajak pembaca (sapaan/ajak)','D. Tidak memiliki kalimat khusus'],
+       ans: 'c', explain: 'Paragraf interaktif ada unsur sapaan atau ajakan kepada pembaca.'},
+
+      {q: '6. Menentukan kalimat utama: Kalimat mana yang merupakan kalimat utama?\n"Singa adalah hewan karnivora. Ia hidup berkelompok dan berburu."',
+       choices: ['A. Singa adalah hewan karnivora','B. Ia hidup berkelompok','C. Ia berburu','D. Tidak ada kalimat utama'],
+       ans: 'a', explain: 'Kalimat pertama berisi pokok pembicaraan.'},
+
+      {q: '7. Unsur kebahasaan teks deskripsi bukanlah...',
+       choices: ['A. Kata konkret','B. Kalimat perincian','C. Majas personifikasi','D. Dialog panjang antar tokoh'],
+       ans: 'd', explain: 'Dialog panjang bukan ciri teks deskripsi.'},
+
+      {q: '8. Kata konkret pada teks deskripsi contohnya...',
+       choices: ['A. Indah','B. Merah, besar, tajam','C. Menyukai','D. Sedih'],
+       ans: 'b', explain: 'Kata konkret menunjuk sifat nyata seperti warna, bentuk.'},
+
+      {q: '9. Majas personifikasi memberi sifat manusia pada benda. Contoh yang benar:',
+       choices: ['A. Angin berbisik pada daun','B. Meja makan bulat','C. Rumah itu tua','D. Dia berlari cepat'],
+       ans: 'a', explain: '"Angin berbisik" memberi sifat manusia pada angin.'},
+
+      {q: '10. Sinonim dari kata "cepat" adalah...',
+       choices: ['A. Lambat','B. Gesit','C. Bodoh','D. Berat'],
+       ans: 'b', explain: 'Gesit adalah sinonim cepat.'},
+
+      {q: '11. Kata berafiks adalah kata yang...',
+       choices: ['A. Berasal dari bahasa asing','B. Mempunyai imbuhan seperti me-, ber-, -an','C. Tidak berubah bentuk','D. Hanya kata dasar'],
+       ans: 'b', explain: 'Afiks = imbuhan pada kata.'},
+
+      {q: '12. Pronomina adalah kata yang berfungsi sebagai pengganti...',
+       choices: ['A. Kata kerja','B. Kata benda','C. Kata sifat','D. Kata keterangan'],
+       ans: 'b', explain: 'Pronomina menggantikan kata benda (contoh: dia, kami).'},
+
+      {q: '13. Konjungsi berfungsi untuk...',
+       choices: ['A. Mengganti kata benda','B. Menghubungkan kata/kalimat/ayat','C. Menjelaskan tokoh','D. Menambah majas'],
+       ans: 'b', explain: 'Konjungsi menghubungkan bagian-bagian kalimat.'},
+
+      {q: '14. Contoh konjungsi koordinatif adalah...',
+       choices: ['A. Karena','B. Dan','C. Agar','D. Sehingga'],
+       ans: 'b', explain: '"Dan" termasuk konjungsi koordinatif (menggabungkan).'},
+
+      {q: '15. Contoh konjungsi subordinatif adalah...',
+       choices: ['A. Tetapi','B. Serta','C. Karena','D. Atau'],
+       ans: 'c', explain: '"Karena" menghubungkan anak kalimat sebab.'},
+
+      {q: '16. Jenis-jenis pantun: pantun nasihat biasanya berisi...',
+       choices: ['A. Humor dan sindiran','B. Pesan moral atau nasihat','C. Cerita cinta panjang','D. Petuah mistis'],
+       ans: 'b', explain: 'Pantun nasihat mengandung pesan moral.'},
+
+      {q: '17. Salah satu ciri pantun adalah...',
+       choices: ['A. Tiap bait 4 baris dan garis sajak a-b-a-b','B. Tiap bait 3 baris','C. Tidak berima','D. Hanya dipakai untuk drama'],
+       ans: 'a', explain: 'Pantun tradisional umumnya 4 baris dengan rima a-b-a-b.'},
+
+      {q: '18. Sastra lama di Indonesia contohnya adalah...',
+       choices: ['A. Novel modern','B. Hikayat, syair, dan pantun lama','C. Cerpen kontemporer','D. Puisi slam'],
+       ans: 'b', explain: 'Hikayat dan syair termasuk sastra lama.'},
+
+      {q: '19. Puisi rakyat (puisi tradisional) memiliki ciri...',
+       choices: ['A. Ditulis baru-baru ini','B. Bersumber dari tradisi lisan','C. Hanya berisi bahasa asing','D. Hanya ada di buku teks'],
+       ans: 'b', explain: 'Puisi rakyat berasal dari tradisi lisan masyarakat.'},
+
+      {q: '20. Mantra dalam kebudayaan biasanya berisi...',
+       choices: ['A. Bahasa ilmiah modern','B. Kata-kata yang dipercaya memiliki kekuatan magis','C. Instruksi memasak','D. Puisi cinta'],
+       ans: 'b', explain: 'Mantra berisi ucapan yang dianggap ampuh dalam ritual.'},
+
+      {q: '21. Menentukan apakah sebuah teks adalah syair: ciri syair adalah...',
+       choices: ['A. Setiap baris bebas tanpa rima','B. Memiliki irama, rima, dan tema umum','C. Selalu 4 baris tiap bait','D. Tidak memiliki pesan moral'],
+       ans: 'b', explain: 'Syair punya rima dan tema yang konsisten.'},
+
+      {q: '22. Menentukan apakah teks adalah pantun: perbedaan utama pantun dan syair adalah...',
+       choices: ['A. Pantun selalu panjang','B. Pantun umumnya 4 baris per bait dengan sampiran dan isi','C. Syair tidak berima','D. Pantun tidak punya sampiran'],
+       ans: 'b', explain: 'Pantun ada sampiran (baris 1-2) dan isi (3-4).'},
+
+      {q: '23. Menentukan teks sebagai gurindam: gurindam biasanya berisi...',
+       choices: ['A. Nasihat singkat dalam 2 baris','B. Cerita panjang berkelanjutan','C. Instruksi teknis','D. Pantun dengan 4 baris'],
+       ans: 'a', explain: 'Gurindam sering 2 baris berisi peribahasa atau nasihat.'},
+
+      {q: '24. Cerita fantasi biasanya berisi...',
+       choices: ['A. Dunia realistis tanpa unsur ajaib','B. Unsur magis, makhluk imajinatif, dan kejadian di luar nalar','C. Hanya fakta sejarah','D. Instruksi ilmiah'],
+       ans: 'b', explain: 'Fantasi menampilkan elemen di luar kenyataan.'},
+
+      {q: '25. Ciri-ciri cerita fantasi termasuk...',
+       choices: ['A. Berlatar di dunia yang persis sama seperti nyata','B. Tokoh pahlawan dengan kendaraan modern saja','C. Unsur sihir, dunia lain, dan tokoh tidak sepenuhnya realistis','D. Selalu berakhir tragis'],
+       ans: 'c', explain: 'Sihir dan dunia lain adalah ciri khas fantasi.'},
+
+      {q: '26. Jenis teks prosedur ada dua: prosedur sederhana dan prosedur kompleks. Yang termasuk sifat prosedur kompleks adalah...',
+       choices: ['A. Langkah singkat tanpa gambar','B. Langkah terperinci, persiapan, dan bisa disertai gambar','C. Hanya judul tanpa langkah','D. Berisi puisi'],
+       ans: 'b', explain: 'Prosedur kompleks memuat langkah terperinci dan persiapan.'},
+
+      {q: '27. Struktur teks narasi meliputi...',
+       choices: ['A. Orientasi, komplikasi, resolusi','B. Judul, sampiran, isi','C. Daftar bahan dan alat','D. Kesimpulan saja'],
+       ans: 'a', explain: 'Narasi biasanya punya orientasi, masalah, dan penyelesaian.'},
+
+      {q: '28. Pengertian teks prosedur adalah...',
+       choices: ['A. Teks yang menjelaskan sebab-akibat suatu peristiwa','B. Teks yang memberi petunjuk cara melakukan sesuatu','C. Teks yang menceritakan pengalaman pribadi','D. Teks yang hanya berisi puisi'],
+       ans: 'b', explain: 'Teks prosedur berisi langkah melakukan sesuatu.'},
+
+      {q: '29. Contoh kalimat utama di tengah paragraf (pilih yang tepat):',
+       choices: ['A. Di pagi hari, burung berkicau.','B. Hutan itu lebat dan penuh kehidupan.','C. Banyak hewan hidup di hutan, termasuk beberapa spesies langka.','D. Karena hujan, jalan menjadi licin.'],
+       ans: 'c', explain: 'Kalimat C menunjukkan kalimat utama di tengah (induktif).'},
+
+      {q: '30. Menentukan ide pokok: "Sekolah kami memiliki perpustakaan yang lengkap. Banyak siswa membaca buku setiap istirahat." Ide pokoknya adalah...',
+       choices: ['A. Banyak siswa membaca buku','B. Perpustakaan sekolah lengkap','C. Istirahat di sekolah','D. Buku mahal'],
+       ans: 'b', explain: 'Kalimat pertama berisi gagasan utama tentang perpustakaan.'},
+
+      {q: '31. Kalimat utama deduktif contoh:',
+       choices: ['A. Kucing tidur di sofa setiap siang.','B. Kota Bandung terkenal dengan kuliner dan cuacanya yang sejuk.','C. Mereka pergi ke pasar karena butuh sayur.','D. Jalan menuju puncak curam dan licin.'],
+       ans: 'b', explain: 'Kalimat B menyatakan gagasan umum di awal.'},
+
+      {q: '32. Contoh pronomina yang benar adalah...',
+       choices: ['A. Meja','B. Dia','C. Indah','D. Merah'],
+       ans: 'b', explain: '"Dia" adalah pronomina (kata ganti).'},
+
+      {q: '33. Kalimat dengan konjungsi yang benar:',
+       choices: ['A. Saya ke toko, lalu membeli apel','B. Karena hujan, tapi acara tetap berlangsung','C. Dia datang dan kemudian pulang','D. Meskipun lelah dan ia tidur'],
+       ans: 'c', explain: 'Pilihan C menggunakan konjungsi yang tepat menghubungkan dua tindakan.'},
+
+      {q: '34. Jenis konjungsi yang menyatakan pertentangan adalah...',
+       choices: ['A. Karena','B. Tetapi','C. Dan','D. Serta'],
+       ans: 'b', explain: '"Tetapi" menunjukkan pertentangan.'},
+
+      {q: '35. Pilih contoh pantun teka-teki (pantun tanya):',
+       choices: ['A. Buah cempedak di luar pagar / Ambil galah tolong jolokkan','B. Di pagi hari burung berkicau / Hati riang menyambut mentari','C. Bunga mawar harum mewangi / Kutulis sajak penuh kasih','D. Jalan-jalan ke kota tua / Membeli buku dan pena'],
+       ans: 'a', explain: 'Pantun teka-teki sering berisi penugasan/teka-teki pada sampiran.'},
+
+      {q: '36. Puisi lama yang berisi ajaran agama dan nasihat disebut juga...',
+       choices: ['A. Novel','B. Syair','C. Cerpen','D. Drama'],
+       ans: 'b', explain: 'Syair sering berisi nasihat dan religi dalam sastra lama.'},
+
+      {q: '37. Contoh mantra tradisional biasanya dipakai untuk...',
+       choices: ['A. Mengajarkan matematika','B. Upacara atau ritual adat','C. Menulis berita','D. Menyusun resep masakan modern'],
+       ans: 'b', explain: 'Mantra biasanya dipakai dalam ritual adat atau kepercayaan. '},
+
+      {q: '38. Jika sebuah teks berisi 2 baris per bait dan berisi petuah singkat, itu kemungkinan besar adalah...',
+       choices: ['A. Syair','B. Gurindam','C. Pantun','D. Novel pendek'],
+       ans: 'b', explain: 'Gurindam umumnya 2 baris dan berisi nasihat.'},
+
+      {q: '39. Bagian "sampiran" dalam pantun berfungsi untuk...',
+       choices: ['A. Menyampaikan isi utama pantun','B. Menghias atau mengawali bait tetapi tidak mengandung maksud utama','C. Memberi kesimpulan cerita','D. Menjadi judul pantun'],
+       ans: 'b', explain: 'Sampiran berfungsi sebagai pemanis, isi terdapat di baris 3-4.'},
+
+      {q: '40. Menentukan kalimat utama: Pada paragraf berikut: "Di taman itu banyak pepohonan rindang. Anak-anak bermain dan berlari. Ada juga kolam kecil." Kalimat utama paling tepat adalah...',
+       choices: ['A. Anak-anak bermain dan berlari','B. Di taman itu banyak pepohonan rindang','C. Ada juga kolam kecil','D. Semua adalah kalimat utama'],
+       ans: 'b', explain: 'Kalimat pertama menyatakan gagasan pokok.'},
+
+      {q: '41. Pilih jawaban yang menunjukkan jenis teks prosedur sederhana:',
+       choices: ['A. Cara membuat teh: seduh air panas, masukkan teh, sajikan.','B. Sejarah kerajaan Majapahit','C. Cerita rakyat Timun Mas','D. Pantun tentang guru'],
+       ans: 'a', explain: 'Itu contoh prosedur sederhana (langkah singkat).'},
+
+      {q: '42. Struktur narasi "komplikasi" berfungsi untuk...',
+       choices: ['A. Memperkenalkan tokoh dan latar','B. Menyajikan masalah atau konflik yang dihadapi tokoh','C. Menutup cerita dengan aman','D. Memberi daftar isi'],
+       ans: 'b', explain: 'Komplikasi memunculkan konflik yang harus diatasi.'},
+
+      {q: '43. Contoh kalimat perincian dalam teks deskripsi adalah...',
+       choices: ['A. Rumah itu besar, catnya putih, atapnya merah','B. Rumah itu','C. Rumah?','D. Kalau rumah besar akan nyaman'],
+       ans: 'a', explain: 'Kalimat A merinci ciri-ciri rumah.'},
+
+      {q: '44. Kata konkret vs kata abstrak: Pilih kata konkret:',
+       choices: ['A. Kebahagiaan','B. Keadilan','C. Batu','D. Cinta'],
+       ans: 'c', explain: 'Batu nyata dapat dilihat dan disentuh (konkret).'},
+
+      {q: '45. Contoh kalimat yang menunjukkan majas personifikasi adalah...',
+       choices: ['A. Meja itu patah karena tua','B. Matahari tersenyum di pagi hari','C. Aku merasa sedih','D. Ia menulis surat'],
+       ans: 'b', explain: 'Matahari diberi sifat manusia (tersenyum).'},
+
+      {q: '46. Pilih contoh konjungsi yang menunjukkan tujuan:',
+       choices: ['A. Supaya','B. Tetapi','C. Sehingga','D. Dan'],
+       ans: 'a', explain: '"Supaya" menunjukkan tujuan. '},
+
+      {q: '47. Ketika menentukan ide pokok, langkah pertama yang benar adalah...',
+       choices: ['A. Menebak jawaban tanpa membaca','B. Membaca keseluruhan paragraf untuk memahami konteks','C. Hanya membaca judul','D. Menghapus kalimat pertama'],
+       ans: 'b', explain: 'Baca seluruh paragraf dulu untuk menangkap ide pokok.'},
+
+      {q: '48. Pilih contoh teks yang bukan termasuk teks deskripsi:',
+       choices: ['A. Deskripsi rumah','B. Panduan cara memasak nasi','C. Gambaran tentang gunung','D. Ulasan tentang barang secara terperinci'],
+       ans: 'b', explain: 'Panduan memasak adalah teks prosedur, bukan deskripsi.'},
+
+      {q: '49. Dari opsi berikut, yang merupakan unsur kebahasaan teks deskripsi adalah...',
+       choices: ['A. Instruksi langkah demi langkah','B. Kata konkret dan kalimat perincian','C. Dialog antar tokoh','D. Teks instruksi keselamatan'],
+       ans: 'b', explain: 'Unsur kebahasaan deskripsi meliputi kata konkret, perincian.'},
+
+      {q: '50. Saat menilai sebuah teks: "Di hutan tropis, burung-burung berwarna cerah banyak terlihat" — teks ini termasuk jenis apa?',
+       choices: ['A. Teks prosedur','B. Teks deskripsi','C. Syair','D. Gurindam'],
+       ans: 'b', explain: 'Kalimat menggambarkan ciri hutan => deskripsi.'}
+    ];
+
+    const form = document.getElementById('quiz');
+
+    // Render questions
+    questions.forEach((item, idx) => {
+      const div = document.createElement('div');
+      div.className = 'question card';
+      div.innerHTML = `
+        <div class="qmeta">Soal ${idx+1}</div>
+        <div class="qtext">${item.q}</div>
+        <div style="margin-top:8px">
+          ${['a','b','c','d'].map((opt,i)=>
+            `<label><input type="radio" name="q${idx}" value="${['a','b','c','d'][i]}"> ${item.choices[i]}</label>`
+          ).join('')}
+        </div>
+      `;
+      form.appendChild(div);
+    });
+
+    // Finish handler
+    document.getElementById('finish').addEventListener('click', function(e){
+      e.preventDefault();
+      const output = document.getElementById('output');
+      const review = document.getElementById('review');
+      let score = 0; let total = questions.length;
+      review.innerHTML = '';
+
+      questions.forEach((item, idx) => {
+        const sel = document.querySelector(`input[name=q${idx}]:checked`);
+        const user = sel ? sel.value : null;
+        const correct = item.ans;
+        const block = document.createElement('div');
+        block.className = user === correct ? 'correct' : 'wrong';
+        block.style.padding = '8px'; block.style.marginTop = '8px';
+        block.innerHTML = `<div><strong>Soal ${idx+1}.</strong> ${item.q}</div>` +
+          `<div class="small">Jawaban Anda: <strong>${user?user.toUpperCase():'-'} </strong> | Jawaban benar: <strong>${correct.toUpperCase()}</strong></div>` +
+          `<div class="small">Pembahasan: ${item.explain}</div>`;
+        review.appendChild(block);
+        if(user === correct) score++;
+      });
+
+      const percent = Math.round((score/total)*100);
+      output.style.display = 'block';
+      output.className = 'result';
+      output.innerHTML = `<div class="summary">Nilai: ${score} / ${total} (${percent}%)</div>` +
+        `<div class="small">Keterangan: ${percent>=75? 'Lulus' : 'Perlu perbaikan'}</div>`;
+
+      // Scroll to result
+      output.scrollIntoView({behavior:'smooth'});
+    });
+
+    // Reset handler
+    document.getElementById('reset').addEventListener('click', function(){
+      document.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+      document.getElementById('output').style.display='none';
+      document.getElementById('review').innerHTML='';
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  </script>
+</body>
+</html>
